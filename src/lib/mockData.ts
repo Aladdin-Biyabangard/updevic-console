@@ -1,5 +1,46 @@
 // Mock data for the admin panel
 
+// New API-compatible interfaces
+export interface ApiTeacherApplication {
+  id: string;
+  fullName: string;
+  email: string;
+  teachingField: string;
+  linkedinProfile: string;
+  githubProfile: string;
+  portfolio: string;
+  additionalInfo: string;
+  phoneNumber: string;
+  createdAt: string;
+  status: 'NEW' | 'APPROVED' | 'REJECTED';
+  resultMessage: string;
+  completedAt: string;
+}
+
+export interface ApiUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  roles: string[];
+  status: 'CREATED' | 'ACTIVE' | 'INACTIVE';
+}
+
+export interface ApiPaginatedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface ApiDashboardStats {
+  totalUsers: number;
+  activeUsers: number;
+  pendingUsers: number;
+  pendingApplicationsForTeaching: number;
+}
+
+// Original interfaces for backwards compatibility
 export interface User {
   id: string;
   name: string;
@@ -290,6 +331,200 @@ export const chartData = {
     { month: 'Oct', applications: 19, certificates: 15, courses: 5 },
     { month: 'Nov', applications: 8, certificates: 12, courses: 2 },
     { month: 'Dec', applications: 15, certificates: 18, courses: 4 },
-    { month: 'Jan', applications: 22, certificates: 25, courses: 6 },
   ],
+};
+
+// ============================================
+// NEW API-COMPATIBLE MOCK DATA
+// ============================================
+
+// Single mock application
+export const mockApplication: ApiTeacherApplication = {
+  id: "550e8400-e29b-41d4-a716-446655440001",
+  fullName: "Sarah Elizabeth Martinez",
+  email: "sarah.martinez@educator.com",
+  teachingField: "Computer Science & Programming",
+  linkedinProfile: "https://linkedin.com/in/sarah-martinez-educator",
+  githubProfile: "https://github.com/sarahmartinez-dev",
+  portfolio: "https://sarahmartinez.dev",
+  additionalInfo: "Specialized in full-stack development with 8 years of industry experience. Passionate about making coding accessible to students of all backgrounds. Fluent in JavaScript, Python, and React.",
+  phoneNumber: "+1 (555) 234-5678",
+  createdAt: "2024-01-10T14:30:00.000Z",
+  status: "NEW",
+  resultMessage: "Application under review - initial screening in progress",
+  completedAt: "2024-01-10T14:30:00.000Z"
+};
+
+// Mock applications list with pagination
+export const mockApplicationsList: ApiPaginatedResponse<ApiTeacherApplication> = {
+  content: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      fullName: "Sarah Elizabeth Martinez",
+      email: "sarah.martinez@educator.com",
+      teachingField: "Computer Science & Programming",
+      linkedinProfile: "https://linkedin.com/in/sarah-martinez-educator",
+      githubProfile: "https://github.com/sarahmartinez-dev",
+      portfolio: "https://sarahmartinez.dev",
+      additionalInfo: "Specialized in full-stack development with 8 years of industry experience. Passionate about making coding accessible to students of all backgrounds.",
+      phoneNumber: "+1 (555) 234-5678",
+      createdAt: "2024-01-10T14:30:00.000Z",
+      status: "NEW",
+      resultMessage: "Application under review - initial screening in progress",
+      completedAt: "2024-01-10T14:30:00.000Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002",
+      fullName: "Dr. Michael Chen",
+      email: "m.chen@mathpro.edu",
+      teachingField: "Advanced Mathematics & Statistics",
+      linkedinProfile: "https://linkedin.com/in/dr-michael-chen",
+      githubProfile: "https://github.com/profchen-math",
+      portfolio: "https://michaelchen-math.com",
+      additionalInfo: "PhD in Applied Mathematics from MIT. 12 years teaching experience at university level. Published researcher in statistical modeling and data science applications.",
+      phoneNumber: "+1 (555) 987-6543",
+      createdAt: "2024-01-08T11:20:00.000Z",
+      status: "APPROVED",
+      resultMessage: "Application approved - excellent qualifications and teaching experience",
+      completedAt: "2024-01-12T16:45:00.000Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440003",
+      fullName: "Amanda Johnson-Lee",
+      email: "amanda.lee@literature.org",
+      teachingField: "English Literature & Creative Writing",
+      linkedinProfile: "https://linkedin.com/in/amanda-johnson-writer",
+      githubProfile: "https://github.com/amandajlee-writing",
+      portfolio: "https://amandajohnsonlee.com",
+      additionalInfo: "Master's in English Literature with focus on contemporary fiction. Award-winning poet and novelist. 6 years teaching high school and college-level writing courses.",
+      phoneNumber: "+1 (555) 456-7890",
+      createdAt: "2024-01-12T16:45:00.000Z",
+      status: "NEW",
+      resultMessage: "Pending review - awaiting portfolio evaluation",
+      completedAt: "2024-01-12T16:45:00.000Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440004",
+      fullName: "Carlos Rodriguez",
+      email: "carlos.r@science-lab.edu",
+      teachingField: "Physics & Laboratory Sciences",
+      linkedinProfile: "https://linkedin.com/in/carlos-rodriguez-physicist",
+      githubProfile: "https://github.com/crodriguez-physics",
+      portfolio: "https://carlosrodriguez-science.net",
+      additionalInfo: "Former NASA research scientist with expertise in quantum mechanics and experimental physics. Passionate about hands-on learning and laboratory education.",
+      phoneNumber: "+1 (555) 321-9876",
+      createdAt: "2024-01-05T13:15:00.000Z",
+      status: "REJECTED",
+      resultMessage: "Application declined - insufficient teaching experience for our current requirements",
+      completedAt: "2024-01-09T10:30:00.000Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440005",
+      fullName: "Dr. Priya Patel",
+      email: "p.patel@biochem.university.edu",
+      teachingField: "Biochemistry & Molecular Biology",
+      linkedinProfile: "https://linkedin.com/in/dr-priya-patel-biochem",
+      githubProfile: "https://github.com/ppatel-biotech",
+      portfolio: "https://priyapatel-research.com",
+      additionalInfo: "PhD in Biochemistry with postdoc at Harvard Medical School. 10+ years research experience in drug discovery. Strong background in both theoretical and practical laboratory instruction.",
+      phoneNumber: "+1 (555) 654-3210",
+      createdAt: "2024-01-07T09:00:00.000Z",
+      status: "APPROVED",
+      resultMessage: "Excellent candidate - approved for advanced biochemistry courses",
+      completedAt: "2024-01-14T14:20:00.000Z"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440006",
+      fullName: "James Wilson",
+      email: "j.wilson@artdesign.studio",
+      teachingField: "Digital Art & Design",
+      linkedinProfile: "https://linkedin.com/in/james-wilson-designer",
+      githubProfile: "https://github.com/jwilson-creative",
+      portfolio: "https://jameswilson-portfolio.com",
+      additionalInfo: "Senior UI/UX Designer with 7 years at top tech companies. Adobe Certified Expert in Creative Suite. Experience teaching design bootcamps and workshops.",
+      phoneNumber: "+1 (555) 789-0123",
+      createdAt: "2024-01-09T12:30:00.000Z",
+      status: "NEW",
+      resultMessage: "Under review - design portfolio assessment in progress",
+      completedAt: "2024-01-09T12:30:00.000Z"
+    }
+  ],
+  page: 0,
+  size: 10,
+  totalElements: 6,
+  totalPages: 1
+};
+
+// Mock users list with pagination
+export const mockUsersList: ApiPaginatedResponse<ApiUser> = {
+  content: [
+    {
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@admin.edu",
+      roles: ["ADMIN", "TEACHER"],
+      status: "ACTIVE"
+    },
+    {
+      firstName: "Sarah",
+      lastName: "Johnson",
+      email: "sarah.johnson@teacher.edu",
+      roles: ["TEACHER"],
+      status: "ACTIVE"
+    },
+    {
+      firstName: "Michael",
+      lastName: "Chen",
+      email: "mike.chen@student.edu",
+      roles: ["STUDENT"],
+      status: "INACTIVE"
+    },
+    {
+      firstName: "Emily",
+      lastName: "Davis",
+      email: "emily.davis@teacher.edu",
+      roles: ["TEACHER"],
+      status: "ACTIVE"
+    },
+    {
+      firstName: "David",
+      lastName: "Wilson",
+      email: "david.wilson@admin.edu",
+      roles: ["ADMIN"],
+      status: "ACTIVE"
+    },
+    {
+      firstName: "Lisa",
+      lastName: "Rodriguez",
+      email: "lisa.rodriguez@teacher.edu",
+      roles: ["TEACHER"],
+      status: "CREATED"
+    },
+    {
+      firstName: "Robert",
+      lastName: "Brown",
+      email: "robert.brown@teacher.edu",
+      roles: ["TEACHER", "COORDINATOR"],
+      status: "ACTIVE"
+    },
+    {
+      firstName: "Amanda",
+      lastName: "Lee",
+      email: "amanda.lee@student.edu",
+      roles: ["STUDENT"],
+      status: "ACTIVE"
+    }
+  ],
+  page: 0,
+  size: 20,
+  totalElements: 8,
+  totalPages: 1
+};
+
+// Mock dashboard stats
+export const mockDashboardStats: ApiDashboardStats = {
+  totalUsers: 24,
+  activeUsers: 18,
+  pendingUsers: 4,
+  pendingApplicationsForTeaching: 3
 };
