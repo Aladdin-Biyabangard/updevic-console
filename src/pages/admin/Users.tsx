@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Filter, UserPlus, Shield, ShieldOff, Trash2, Settings, MoreVertical } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,20 +8,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { mockUsers, User } from "@/lib/mockData";
 import { useToast } from "@/hooks/use-toast";
+import { getAllUsers, login } from "@/lib/api/users";
 
 export default function Users() {
-  const [users, setUsers] = useState(mockUsers);
+  const [users, setUsers] = useState([]);
+   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
   const { toast } = useToast();
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.roles.some(role => role.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesFilter = filter === "all" || user.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  // const filteredUsers = users.filter(user => {
+  //   const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //                        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //                        user.roles.some(role => role.toLowerCase().includes(searchTerm.toLowerCase()));
+  //   const matchesFilter = filter === "all" || user.status === filter;
+  //   return matchesSearch && matchesFilter;
+  // });
 
   const handleUserAction = (id: string, action: "activate" | "deactivate" | "delete" | "addRole" | "removeRole") => {
     setUsers(prev => prev.map(user => {
@@ -93,6 +96,28 @@ export default function Users() {
       .toUpperCase();
   };
 
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const data = await getAllUsers('');
+        console.log(data);
+        setUsers(data?.content || []);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // useEffect(() =>{
+  //   login()
+  // })
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -141,9 +166,9 @@ export default function Users() {
 
       {/* Users Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredUsers.map((user) => (
+        {users.map((user,index) => (
           <Card
-            key={user.id}
+            key={index}
             className="bg-gradient-card border-0 shadow-custom-md hover:shadow-custom-lg transition-all duration-300 ease-smooth"
           >
             <CardHeader className="pb-3">
@@ -152,7 +177,7 @@ export default function Users() {
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={user.avatar} alt={user.name} />
                     <AvatarFallback className="bg-gradient-primary text-white font-medium">
-                      {getInitials(user.name)}
+                      {getInitials(user.firstName)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -271,7 +296,7 @@ export default function Users() {
         ))}
       </div>
 
-      {filteredUsers.length === 0 && (
+      {users.length === 0 && (
         <Card className="bg-gradient-card border-0 shadow-custom-md">
           <CardContent className="p-12 text-center">
             <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
