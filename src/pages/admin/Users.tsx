@@ -1,22 +1,40 @@
 import { useEffect, useState } from "react";
-import { Search, Filter, UserPlus, Shield, ShieldOff, Trash2, Settings, MoreVertical } from "lucide-react";
+import { Search, Filter, UserPlus, Shield, ShieldOff, Trash2, Settings, MoreVertical, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { mockUsers, User } from "@/lib/mockData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { getAllUsers, login } from "@/lib/api/users";
+import { getAllUsers } from "@/lib/api/users";
+
+interface UserFilters {
+  firstName: string;
+  email: string;
+  roles: string[];
+  status: string;
+}
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-   const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
+  const [filters, setFilters] = useState<UserFilters>({
+    firstName: "",
+    email: "",
+    roles: [],
+    status: ""
+  });
   const { toast } = useToast();
+
+  // Available options for filters
+  const roleOptions = ["ADMIN", "TEACHER", "STUDENT", "MODERATOR"];
+  const statusOptions = ["CREATED", "ACTIVE", "DEACTIVATED", "SUSPENDED"];
 
   // const filteredUsers = users.filter(user => {
   //   const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -97,20 +115,55 @@ export default function Users() {
   };
 
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const data = await getAllUsers('');
-        console.log(data);
-        setUsers(data?.content || []);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchUsers = async (searchFilters: Partial<UserFilters> = {}) => {
+    setLoading(true);
+    try {
+      const data = await getAllUsers(searchFilters);
+      console.log(data);
+      setUsers(data?.content || []);
+    } catch (error) {
+      setError(error.message);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handleSearch = () => {
+    const searchCriteria: Partial<UserFilters> = {};
+    
+    if (filters.firstName.trim()) searchCriteria.firstName = filters.firstName.trim();
+    if (filters.email.trim()) searchCriteria.email = filters.email.trim();
+    if (filters.roles.length > 0) searchCriteria.roles = filters.roles;
+    if (filters.status.trim()) searchCriteria.status = filters.status.trim();
+    
+    fetchUsers(searchCriteria);
+  };
+
+  const handleClear = () => {
+    setFilters({
+      firstName: "",
+      email: "",
+      roles: [],
+      status: ""
+    });
+    fetchUsers({});
+  };
+
+  const handleRoleToggle = (role: string) => {
+    setFilters(prev => ({
+      ...prev,
+      roles: prev.roles.includes(role)
+        ? prev.roles.filter(r => r !== role)
+        : [...prev.roles, role]
+    }));
+  };
+
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -134,32 +187,140 @@ export default function Users() {
         </Button>
       </div>
 
-      {/* Filters and Search */}
+      {/* Advanced Filters */}
       <Card className="bg-gradient-card border-0 shadow-custom-md">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Advanced Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* First Name Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
               <Input
-                placeholder="Search by name, email, or role..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                id="firstName"
+                placeholder="Enter first name..."
+                value={filters.firstName}
+                onChange={(e) => setFilters(prev => ({ ...prev, firstName: e.target.value }))}
               />
             </div>
-            <div className="flex gap-2">
-              {["all", "active", "inactive"].map((status) => (
-                <Button
-                  key={status}
-                  variant={filter === status ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(status as any)}
-                  className="capitalize"
-                >
-                  {status}
-                </Button>
-              ))}
+
+            {/* Email Filter */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                placeholder="Enter email..."
+                value={filters.email}
+                onChange={(e) => setFilters(prev => ({ ...prev, email: e.target.value }))}
+              />
             </div>
+
+            {/* Roles Multi-select */}
+            <div className="space-y-2">
+              <Label>Roles</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start">
+                    {filters.roles.length > 0 
+                      ? `${filters.roles.length} role(s) selected`
+                      : "Select roles..."
+                    }
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-2">
+                  <div className="space-y-2">
+                    {roleOptions.map((role) => (
+                      <div key={role} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={role}
+                          checked={filters.roles.includes(role)}
+                          onCheckedChange={() => handleRoleToggle(role)}
+                        />
+                        <Label htmlFor={role} className="text-sm font-normal">
+                          {role}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Status Filter */}
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Statuses</SelectItem>
+                  {statusOptions.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Selected Filters Display */}
+          {(filters.firstName || filters.email || filters.roles.length > 0 || filters.status) && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t">
+              {filters.firstName && (
+                <Badge variant="secondary" className="gap-1">
+                  Name: {filters.firstName}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => setFilters(prev => ({ ...prev, firstName: "" }))}
+                  />
+                </Badge>
+              )}
+              {filters.email && (
+                <Badge variant="secondary" className="gap-1">
+                  Email: {filters.email}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => setFilters(prev => ({ ...prev, email: "" }))}
+                  />
+                </Badge>
+              )}
+              {filters.roles.map((role) => (
+                <Badge key={role} variant="secondary" className="gap-1">
+                  Role: {role}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => handleRoleToggle(role)}
+                  />
+                </Badge>
+              ))}
+              {filters.status && (
+                <Badge variant="secondary" className="gap-1">
+                  Status: {filters.status}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => setFilters(prev => ({ ...prev, status: "" }))}
+                  />
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-4">
+            <Button onClick={handleSearch} disabled={loading} className="flex-1 sm:flex-none">
+              <Search className="h-4 w-4 mr-2" />
+              {loading ? "Searching..." : "Search"}
+            </Button>
+            <Button variant="outline" onClick={handleClear} disabled={loading}>
+              <X className="h-4 w-4 mr-2" />
+              Clear
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -174,16 +335,16 @@ export default function Users() {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="bg-gradient-primary text-white font-medium">
-                      {getInitials(user.firstName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <CardTitle className="text-lg">{user.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                  </div>
+                   <Avatar className="h-12 w-12">
+                     <AvatarImage src={user.avatar} alt={user.firstName || user.name} />
+                     <AvatarFallback className="bg-gradient-primary text-white font-medium">
+                       {getInitials(user.firstName || user.name || "U")}
+                     </AvatarFallback>
+                   </Avatar>
+                   <div>
+                     <CardTitle className="text-lg">{user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.name}</CardTitle>
+                     <p className="text-sm text-muted-foreground">{user.email}</p>
+                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -296,17 +457,27 @@ export default function Users() {
         ))}
       </div>
 
-      {users.length === 0 && (
+      {users.length === 0 && !loading && (
         <Card className="bg-gradient-card border-0 shadow-custom-md">
           <CardContent className="p-12 text-center">
             <UserPlus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">No users found</h3>
             <p className="text-muted-foreground">
-              {searchTerm || filter !== "all" 
+              {Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : f) 
                 ? "Try adjusting your search or filter criteria."
                 : "No users have been created yet."
               }
             </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {loading && (
+        <Card className="bg-gradient-card border-0 shadow-custom-md">
+          <CardContent className="p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 className="text-lg font-medium text-foreground mb-2">Loading users...</h3>
+            <p className="text-muted-foreground">Please wait while we fetch the user data.</p>
           </CardContent>
         </Card>
       )}
