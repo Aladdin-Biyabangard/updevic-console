@@ -3,19 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { Shield, ArrowRight, BarChart3, Users, Award, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/admin-hero.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Auto-redirect to admin panel after 3 seconds
+  // Auto-redirect based on auth status
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/admin");
-    }, 3000);
+    if (!isLoading) {
+      const timer = setTimeout(() => {
+        if (isAuthenticated) {
+          navigate("/admin");
+        } else {
+          navigate("/signin");
+        }
+      }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [navigate]);
+      return () => clearTimeout(timer);
+    }
+  }, [navigate, isAuthenticated, isLoading]);
 
   const features = [
     {
@@ -71,9 +79,9 @@ const Index = () => {
             <Button 
               size="lg" 
               className="bg-gradient-primary hover:shadow-glow transition-all duration-300"
-              onClick={() => navigate("/admin")}
+              onClick={() => navigate(isAuthenticated ? "/admin" : "/signin")}
             >
-              Access Admin Panel
+              {isAuthenticated ? "Access Admin Panel" : "Sign In"}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 
@@ -86,7 +94,7 @@ const Index = () => {
           </div>
 
           <p className="text-sm text-muted-foreground mt-4">
-            Redirecting to admin panel in 3 seconds...
+            {isLoading ? "Loading..." : `Redirecting to ${isAuthenticated ? "admin panel" : "sign in"} in 3 seconds...`}
           </p>
         </div>
 

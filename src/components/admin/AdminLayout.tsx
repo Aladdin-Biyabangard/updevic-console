@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AdminSidebar } from "./AdminSidebar";
 import { ThemeToggle } from "./ThemeToggle";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function AdminLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { logout, user } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -30,9 +32,21 @@ export function AdminLayout() {
           </div>
           
           <div className="flex items-center space-x-2">
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              {user?.firstName} {user?.lastName}
+            </span>
             <Button variant="ghost" size="sm" className="h-9 w-9 p-0 relative">
               <Bell className="h-4 w-4" />
               <span className="absolute -top-1 -right-1 h-2 w-2 bg-destructive rounded-full"></span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 w-9 p-0"
+              onClick={logout}
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
             </Button>
             <ThemeToggle />
           </div>

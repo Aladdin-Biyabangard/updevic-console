@@ -12,10 +12,10 @@ export const getAllUsers = async (searchTerm) => {
   }
 };
 
-export const login = async () => {
+export const login = async (email: string, password: string) => {
   const response = await axiosInstance.post("/auth/sign-in", {
-    email: "aladdin19.11.21@gmail.com",
-    password: "Admin12",
+    email,
+    password,
   });
 
   if (response.data.accessToken) {
