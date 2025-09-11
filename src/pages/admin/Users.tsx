@@ -79,18 +79,18 @@ export default function Users() {
                     });
                     break;
 
-                case "addRole":
-                    await addUserRole(id, "TEACHER");
-                    setUsers(prev => prev.map(user =>
-                        user.id === id && !user.roles.includes("TEACHER")
-                            ? {...user, roles: [...user.roles, "TEACHER"]}
-                            : user
-                    ));
-                    toast({
-                        title: "Role Added",
-                        description: `Teacher role added to user.`,
-                    });
-                    break;
+                // case "addRole":
+                //     await addUserRole(id, "TEACHER");
+                //     setUsers(prev => prev.map(user =>
+                //         user.id === id && !user.roles.includes("TEACHER")
+                //             ? {...user, roles: [...user.roles, "TEACHER"]}
+                //             : user
+                //     ));
+                //     toast({
+                //         title: "Role Added",
+                //         description: `Teacher role added to user.`,
+                //     });
+                //     break;
 
                 case "removeRole":
                     await removeUserRole(id, "TEACHER");
@@ -107,7 +107,7 @@ export default function Users() {
                     break;
 
                 case "delete":
-                    // delete API yoxdur, sadəcə frontenddən silirik
+                    await deleteUser(id);  // Yeni API çağırışı
                     setUsers(prev => prev.filter(user => user.id !== id));
                     toast({
                         title: "User Deleted",
@@ -394,7 +394,7 @@ export default function Users() {
                                             Edit Profile
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator/>
-                                        {user.status === "active" ? (
+                                        {user.status === "ACTIVE" ? (
                                             <DropdownMenuItem onClick={() => handleUserAction(user.id, "deactivate")}>
                                                 <ShieldOff className="h-4 w-4 mr-2"/>
                                                 Deactivate
@@ -405,13 +405,10 @@ export default function Users() {
                                                 Activate
                                             </DropdownMenuItem>
                                         )}
-                                        {user.roles.includes("TEACHER") ? (
+                                        {/* Only remove teacher role if user has it */}
+                                        {user.roles.includes("TEACHER") && (
                                             <DropdownMenuItem onClick={() => handleUserAction(user.id, "removeRole")}>
                                                 Remove Teacher Role
-                                            </DropdownMenuItem>
-                                        ) : (
-                                            <DropdownMenuItem onClick={() => handleUserAction(user.id, "addRole")}>
-                                                Add Teacher Role
                                             </DropdownMenuItem>
                                         )}
                                         <DropdownMenuSeparator/>
@@ -424,6 +421,7 @@ export default function Users() {
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
+
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -449,7 +447,7 @@ export default function Users() {
                                 <Badge
                                     variant="secondary"
                                     className={
-                                        user.status === "active"
+                                        user.status === "ACTIVE"
                                             ? "bg-success/10 text-success"
                                             : "bg-destructive/10 text-destructive"
                                     }
@@ -466,7 +464,7 @@ export default function Users() {
 
                             {/* Quick Actions */}
                             <div className="flex gap-2 pt-2">
-                                {user.status === "active" ? (
+                                {user.status === "ACTIVE" ? (
                                     <Button
                                         size="sm"
                                         variant="outline"

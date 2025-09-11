@@ -55,3 +55,7 @@ export const addUserRole = async (id: number, role: "ADMIN" | "TEACHER" | "STUDE
 export const removeUserRole = async (id: number, role: "ADMIN" | "TEACHER" | "STUDENT") => {
   await axiosInstance.put(`/admins/users/${id}/role`, null, { params: { role } });
 };
+
+export const deleteUser = async (id: number) => {
+  await axiosInstance.delete(`/admins/users/${id}`);
+};
