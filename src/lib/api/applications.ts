@@ -1,4 +1,5 @@
 import axiosInstance from "../axios";
+import qs from "qs";
 
 export interface ApplicationCriteria {
   fullName?: string;
@@ -49,42 +50,27 @@ export interface ApplicationSearchResponse {
 }
 
 export const searchApplications = async (
-  criteria: ApplicationCriteria = {},
-  page: number = 0,
-  size: number = 20
+    criteria: ApplicationCriteria = {},
+    page: number = 0,
+    size: number = 20
 ): Promise<ApplicationSearchResponse> => {
   try {
     const applicationCriteria: ApplicationCriteria = {};
-    
-    // Only include non-empty values
-    if (criteria.fullName?.trim()) {
-      applicationCriteria.fullName = criteria.fullName.trim();
-    }
-    if (criteria.email?.trim()) {
-      applicationCriteria.email = criteria.email.trim();
-    }
-    if (criteria.teachingField?.trim()) {
-      applicationCriteria.teachingField = criteria.teachingField.trim();
-    }
-    if (criteria.phone?.trim()) {
-      applicationCriteria.phone = criteria.phone.trim();
-    }
-    if (criteria.status?.trim()) {
-      applicationCriteria.status = criteria.status.trim();
-    }
-    if (criteria.createdAtFrom?.trim()) {
-      applicationCriteria.createdAtFrom = criteria.createdAtFrom.trim();
-    }
-    if (criteria.createdAtTo?.trim()) {
-      applicationCriteria.createdAtTo = criteria.createdAtTo.trim();
-    }
 
-    const requestBody: ApplicationSearchRequest = {
-      applicationCriteria,
+    if (criteria.fullName?.trim()) applicationCriteria.fullName = criteria.fullName.trim();
+    if (criteria.email?.trim()) applicationCriteria.email = criteria.email.trim();
+    if (criteria.teachingField?.trim()) applicationCriteria.teachingField = criteria.teachingField.trim();
+    if (criteria.phone?.trim()) applicationCriteria.phone = criteria.phone.trim();
+    if (criteria.status?.trim()) applicationCriteria.status = criteria.status.trim();
+    if (criteria.createdAtFrom?.trim()) applicationCriteria.createdAtFrom = criteria.createdAtFrom.trim();
+    if (criteria.createdAtTo?.trim()) applicationCriteria.createdAtTo = criteria.createdAtTo.trim();
+
+    const query = qs.stringify({
+      searchDto: applicationCriteria,
       pageRequest: { page, size }
-    };
+    }, { encodeValuesOnly: true });
 
-    const response = await axiosInstance.get("/applications/search", requestBody);
+    const response = await axiosInstance.get(`/applications/search?${query}`);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch applications");
