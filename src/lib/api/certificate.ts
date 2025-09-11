@@ -21,25 +21,26 @@ export interface Certificate {
 
 export interface CertificateResponse {
     content: Certificate[];
-    page: number;
+    totalElements: number;
+    totalPages: number;
     size: number;
+    number: number;
 }
 
-export const getCertificates = async (
+export const searchCertificates = async (
     criteria: CertificateCriteria = {},
     page: number = 0,
     size: number = 10
 ): Promise<CertificateResponse> => {
     try {
-        const params: Record<string, any> = { page, size };
+        const params: any = { page, size };
 
-        // Criteria object bütün dəyərləri varsa saxlayırıq
-        Object.keys(criteria).forEach((key) => {
-            const value = (criteria as any)[key];
-            if (value) {
-                params[key] = value; // ✅ artıq criteria.email yox, sadəcə email
-            }
-        });
+        if (criteria.email?.trim()) params.email = criteria.email.trim();
+        if (criteria.trainingName?.trim()) params.trainingName = criteria.trainingName.trim();
+        if (criteria.status?.trim()) params.status = criteria.status.trim();
+        if (criteria.type?.trim()) params.type = criteria.type.trim();
+        if (criteria.dateFrom?.trim()) params.dateFrom = criteria.dateFrom.trim();
+        if (criteria.toDate?.trim()) params.toDate = criteria.toDate.trim();
 
         const response = await axiosInstance.get("/admins/certificates", { params });
         return response.data;
