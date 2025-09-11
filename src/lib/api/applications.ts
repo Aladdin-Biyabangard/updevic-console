@@ -1,5 +1,4 @@
 import axiosInstance from "../axios";
-import qs from "qs";
 
 export interface ApplicationCriteria {
   fullName?: string;
@@ -55,22 +54,18 @@ export const searchApplications = async (
     size: number = 20
 ): Promise<ApplicationSearchResponse> => {
   try {
-    const applicationCriteria: ApplicationCriteria = {};
+    // Filter only non-empty fields
+    const params: any = { page, size };
 
-    if (criteria.fullName?.trim()) applicationCriteria.fullName = criteria.fullName.trim();
-    if (criteria.email?.trim()) applicationCriteria.email = criteria.email.trim();
-    if (criteria.teachingField?.trim()) applicationCriteria.teachingField = criteria.teachingField.trim();
-    if (criteria.phone?.trim()) applicationCriteria.phone = criteria.phone.trim();
-    if (criteria.status?.trim()) applicationCriteria.status = criteria.status.trim();
-    if (criteria.createdAtFrom?.trim()) applicationCriteria.createdAtFrom = criteria.createdAtFrom.trim();
-    if (criteria.createdAtTo?.trim()) applicationCriteria.createdAtTo = criteria.createdAtTo.trim();
+    if (criteria.fullName?.trim()) params.fullName = criteria.fullName.trim();
+    if (criteria.email?.trim()) params.email = criteria.email.trim();
+    if (criteria.teachingField?.trim()) params.teachingField = criteria.teachingField.trim();
+    if (criteria.phone?.trim()) params.phone = criteria.phone.trim();
+    if (criteria.status?.trim()) params.status = criteria.status.trim();
+    if (criteria.createdAtFrom?.trim()) params.createdAtFrom = criteria.createdAtFrom.trim();
+    if (criteria.createdAtTo?.trim()) params.createdAtTo = criteria.createdAtTo.trim();
 
-    const query = qs.stringify({
-      searchDto: applicationCriteria,
-      pageRequest: { page, size }
-    }, { encodeValuesOnly: true });
-
-    const response = await axiosInstance.get(`/applications/search?${query}`);
+    const response = await axiosInstance.get("/applications/search", { params });
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch applications");
