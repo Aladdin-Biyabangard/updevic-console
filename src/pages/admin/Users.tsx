@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Search, Filter, UserPlus, Shield, ShieldOff, Trash2, Settings, MoreVertical, X} from "lucide-react";
+import {Filter, MoreVertical, Search, Settings, Shield, ShieldOff, Trash2, UserPlus, X} from "lucide-react";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -17,7 +17,7 @@ import {Checkbox} from "@/components/ui/checkbox";
 import {Label} from "@/components/ui/label";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {useToast} from "@/hooks/use-toast";
-import {getAllUsers} from "@/lib/api/users";
+import {activateUser, deactivateUser, deleteUser, getAllUsers, removeUserRole} from "@/lib/api/users";
 
 interface UserFilters {
     firstName: string;
@@ -78,19 +78,6 @@ export default function Users() {
                         variant: "destructive",
                     });
                     break;
-
-                // case "addRole":
-                //     await addUserRole(id, "TEACHER");
-                //     setUsers(prev => prev.map(user =>
-                //         user.id === id && !user.roles.includes("TEACHER")
-                //             ? {...user, roles: [...user.roles, "TEACHER"]}
-                //             : user
-                //     ));
-                //     toast({
-                //         title: "Role Added",
-                //         description: `Teacher role added to user.`,
-                //     });
-                //     break;
 
                 case "removeRole":
                     await removeUserRole(id, "TEACHER");
