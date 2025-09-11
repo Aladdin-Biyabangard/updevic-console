@@ -253,16 +253,22 @@ export default function Users() {
             {/* Status Filter */}
             <div className="space-y-2">
               <Label>Status</Label>
-              <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
+              <Select
+                  value={filters.status}
+                  onValueChange={(value) => setFilters(prev => ({
+                    ...prev,
+                    status: value === "all" ? "" : value
+                  }))}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select status..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   {statusOptions.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {status}
-                    </SelectItem>
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
