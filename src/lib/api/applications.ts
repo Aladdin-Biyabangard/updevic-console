@@ -84,7 +84,7 @@ export const searchApplications = async (
       pageRequest: { page, size }
     };
 
-    const response = await axiosInstance.post("/applications/search", requestBody);
+    const response = await axiosInstance.get("/applications/search", requestBody);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch applications");
