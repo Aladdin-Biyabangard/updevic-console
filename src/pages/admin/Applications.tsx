@@ -496,7 +496,7 @@ export default function Applications() {
                           {application.isRead ? "Read" : "Mark as Read"}
                         </Button>
                         
-                        {application.status === "PENDING" && (
+                        {application.status === "PENDING" && "NEW" (
                           <>
                             <Button
                               size="sm"
