@@ -84,7 +84,7 @@ export const searchApplications = async (
       pageRequest: { page, size }
     };
 
-    const response = await axiosInstance.post("/api/v1/applications/search", requestBody);
+    const response = await axiosInstance.post("/applications/search", requestBody);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch applications");
@@ -93,7 +93,7 @@ export const searchApplications = async (
 
 export const getApplicationDetails = async (id: string): Promise<DetailedApplication> => {
   try {
-    const response = await axiosInstance.get(`/api/v1/applications/${id}`);
+    const response = await axiosInstance.get(`/applications/${id}`);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch application details");
@@ -102,7 +102,7 @@ export const getApplicationDetails = async (id: string): Promise<DetailedApplica
 
 export const deleteApplication = async (id: string): Promise<void> => {
   try {
-    await axiosInstance.delete(`/api/v1/applications/${id}`);
+    await axiosInstance.delete(`/applications/${id}`);
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to delete application");
   }
@@ -110,7 +110,7 @@ export const deleteApplication = async (id: string): Promise<void> => {
 
 export const markAsRead = async (id: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/api/v1/applications/${id}/read`);
+    await axiosInstance.put(`/applications/${id}/read`);
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to mark as read");
   }
@@ -118,7 +118,7 @@ export const markAsRead = async (id: string): Promise<void> => {
 
 export const rejectApplication = async (id: string, message: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/api/v1/applications/${id}/reject`, { message });
+    await axiosInstance.put(`/applications/${id}/reject`, { message });
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to reject application");
   }
@@ -126,7 +126,7 @@ export const rejectApplication = async (id: string, message: string): Promise<vo
 
 export const approveApplication = async (id: string, message: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/api/v1/applications/${id}/success`, { message });
+    await axiosInstance.put(`/applications/${id}/success`, { message });
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to approve application");
   }
