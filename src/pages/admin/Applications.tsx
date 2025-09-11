@@ -378,7 +378,7 @@ export default function Applications() {
                           >
                             {application.status}
                           </Badge>
-                          <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${expandedApplication === application.id ? "rotate-180" : ""}`} />
+                          {/*<ChevronDown className={`h-4 w-4 transition-transform duration-200 ${expandedApplication === application.id ? "rotate-180" : ""}`} />*/}
                         </div>
                       </div>
                     </CardHeader>
