@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { getCertificates, Certificate, CertificateCriteria } from "@/lib/api/certificate";
+import { searchCertificates, Certificate, CertificateCriteria } from "@/lib/api/certificate";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Certificates() {
@@ -38,7 +38,7 @@ export default function Certificates() {
         }
       }
 
-      const data = await getCertificates(criteria, 0, 50); // pagination
+      const data = await searchCertificates(criteria, 0, 50); // pagination
       setCertificates(data.content);
     } catch (error: any) {
       toast({
