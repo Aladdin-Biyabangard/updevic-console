@@ -36,3 +36,22 @@ export const login = async (email: string, password: string) => {
   }
   return response.data;
 };
+
+export const activateUser = async (id: number) => {
+  await axiosInstance.put(`/admins/users/${id}/activate`);
+};
+
+// User deaktivləşdirmək
+export const deactivateUser = async (id: number) => {
+  await axiosInstance.put(`/admins/users/${id}/deactivate`);
+};
+
+// Role əlavə etmək
+export const addUserRole = async (id: number, role: "ADMIN" | "TEACHER" | "STUDENT") => {
+  await axiosInstance.put(`/admins/users/${id}/assign/role`, null, { params: { role } });
+};
+
+// Role silmək
+export const removeUserRole = async (id: number, role: "ADMIN" | "TEACHER" | "STUDENT") => {
+  await axiosInstance.put(`/admins/users/${id}/role`, null, { params: { role } });
+};

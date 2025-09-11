@@ -44,54 +44,76 @@ export default function Users() {
   //   return matchesSearch && matchesFilter;
   // });
 
-  const handleUserAction = (id: string, action: "activate" | "deactivate" | "delete" | "addRole" | "removeRole") => {
-    setUsers(prev => prev.map(user => {
-      if (user.id === id) {
-        switch (action) {
-          case "activate":
-            toast({
-              title: "User Activated",
-              description: `${user.name} has been activated.`,
-            });
-            return { ...user, status: "active" as const };
-          case "deactivate":
-            toast({
-              title: "User Deactivated",
-              description: `${user.name} has been deactivated.`,
-              variant: "destructive",
-            });
-            return { ...user, status: "inactive" as const };
-          case "addRole":
-            if (!user.roles.includes("Teacher")) {
-              toast({
-                title: "Role Added",
-                description: `Teacher role added to ${user.name}.`,
-              });
-              return { ...user, roles: [...user.roles, "Teacher"] };
-            }
-            return user;
-          case "removeRole":
-            if (user.roles.includes("Teacher")) {
-              toast({
-                title: "Role Removed",
-                description: `Teacher role removed from ${user.name}.`,
-                variant: "destructive",
-              });
-              return { ...user, roles: user.roles.filter(role => role !== "Teacher") };
-            }
-            return user;
-          default:
-            return user;
-        }
-      }
-      return user;
-    }));
+  const handleUserAction = async (
+      id: number,
+      action: "activate" | "deactivate" | "delete" | "addRole" | "removeRole"
+  ) => {
+    try {
+      switch (action) {
+        case "activate":
+          await activateUser(id);
+          setUsers(prev => prev.map(user =>
+              user.id === id ? { ...user, status: "ACTIVE" } : user
+          ));
+          toast({
+            title: "User Activated",
+            description: `User has been activated.`,
+          });
+          break;
 
-    if (action === "delete") {
-      setUsers(prev => prev.filter(user => user.id !== id));
+        case "deactivate":
+          await deactivateUser(id);
+          setUsers(prev => prev.map(user =>
+              user.id === id ? { ...user, status: "DEACTIVATED" } : user
+          ));
+          toast({
+            title: "User Deactivated",
+            description: `User has been deactivated.`,
+            variant: "destructive",
+          });
+          break;
+
+        case "addRole":
+          await addUserRole(id, "TEACHER");
+          setUsers(prev => prev.map(user =>
+              user.id === id && !user.roles.includes("TEACHER")
+                  ? { ...user, roles: [...user.roles, "TEACHER"] }
+                  : user
+          ));
+          toast({
+            title: "Role Added",
+            description: `Teacher role added to user.`,
+          });
+          break;
+
+        case "removeRole":
+          await removeUserRole(id, "TEACHER");
+          setUsers(prev => prev.map(user =>
+              user.id === id
+                  ? { ...user, roles: user.roles.filter(r => r !== "TEACHER") }
+                  : user
+          ));
+          toast({
+            title: "Role Removed",
+            description: `Teacher role removed from user.`,
+            variant: "destructive",
+          });
+          break;
+
+        case "delete":
+          // delete API yoxdur, sadəcə frontenddən silirik
+          setUsers(prev => prev.filter(user => user.id !== id));
+          toast({
+            title: "User Deleted",
+            description: "The user has been permanently deleted.",
+            variant: "destructive",
+          });
+          break;
+      }
+    } catch (error: any) {
       toast({
-        title: "User Deleted",
-        description: "The user has been permanently deleted.",
+        title: "Error",
+        description: error.response?.data?.message || "Action failed",
         variant: "destructive",
       });
     }
