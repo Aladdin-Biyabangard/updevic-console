@@ -492,12 +492,11 @@ export default function Applications() {
                           onClick={() => handleAction(application.id, "markRead")}
                           disabled={actionLoading[application.id] || application.isRead}
                         >
-
                           <Eye className="h-3 w-3 mr-1" />
                           {application.isRead ? "Read" : "Mark as Read"}
                         </Button>
-                        
-                        {application.status === "PENDING" || "NEW" (
+
+                        {(application.status === "PENDING" || application.status === "NEW") && (
                           <>
                             <Button
                               size="sm"
