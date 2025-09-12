@@ -52,12 +52,42 @@ export const sanitizeErrorMessage = (error: any): string => {
   return 'An unexpected error occurred. Please try again.';
 };
 
+// Security event tracking with rate limiting awareness
+let securityEventCount = 0;
+const SECURITY_EVENT_LIMIT = 10;
+const RESET_INTERVAL = 60000; // 1 minute
+
+setInterval(() => {
+  securityEventCount = 0;
+}, RESET_INTERVAL);
+
 export const logSecurityEvent = (event: string, details: any) => {
-  // In production, this would send to a logging service
-  console.warn(`Security Event: ${event}`, {
+  // Rate limiting for security events to prevent spam
+  if (securityEventCount >= SECURITY_EVENT_LIMIT) {
+    return;
+  }
+  securityEventCount++;
+
+  const securityEventData = {
+    event,
     timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
     url: window.location.href,
+    sessionId: sessionStorage.getItem('session_id') || 'unknown',
     ...details
-  });
+  };
+
+  // In production, this would send to a security monitoring service
+  console.warn(`Security Event: ${event}`, securityEventData);
+  
+  // Store critical events in sessionStorage for debugging
+  if (['unauthorized_access', 'csrf_token_mismatch', 'invalid_origin'].includes(event)) {
+    const criticalEvents = JSON.parse(sessionStorage.getItem('critical_security_events') || '[]');
+    criticalEvents.push(securityEventData);
+    // Keep only last 5 critical events
+    if (criticalEvents.length > 5) {
+      criticalEvents.shift();
+    }
+    sessionStorage.setItem('critical_security_events', JSON.stringify(criticalEvents));
+  }
 };

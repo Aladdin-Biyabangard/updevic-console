@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { login as apiLogin, getUserProfile } from '@/lib/api/users';
 import { getAuthToken, removeAuthToken } from '@/lib/cookie';
-import { useNavigate } from 'react-router-dom';
+import { getSessionId, clearSession, refreshSession } from '@/lib/session';
 
 interface User {
   firstName: string;
@@ -43,6 +43,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
+      // Initialize session for security tracking
+      const sessionId = getSessionId();
+      
       const token = getAuthToken();
       if (token) {
         setAccessToken(token);
@@ -56,17 +59,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             id: userData.id,
             email: userData.email
           });
+          refreshSession(); // Refresh session on successful auth
         } catch (error) {
           // Token is invalid, remove it
           removeAuthToken();
           setAccessToken(null);
           setUser(null);
+          clearSession();
         }
       }
       setIsLoading(false);
     };
 
+    // Listen for logout events from axios interceptor
+    const handleLogout = () => {
+      logout();
+    };
+
+    window.addEventListener('auth:logout', handleLogout);
     initializeAuth();
+
+    return () => {
+      window.removeEventListener('auth:logout', handleLogout);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -93,8 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     setAccessToken(null);
     removeAuthToken();
-    // Use React Router navigation instead of direct location change
-    window.location.href = '/signin';
+    clearSession(); // Clear session data on logout
   };
 
   const hasRole = (role: string): boolean => {
