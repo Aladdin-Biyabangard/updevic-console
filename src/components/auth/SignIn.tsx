@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Lock, Mail } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { validateAndSanitizeInput, loginSchema } from '@/lib/validation/schemas';
+import { sanitizeErrorMessage } from '@/lib/errors';
 
 export const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -19,16 +21,13 @@ export const SignIn: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
     try {
-      await login(email, password);
+      // Validate input using Zod schema
+      const validatedData = validateAndSanitizeInput(loginSchema, { email, password });
+      await login(validatedData.email, validatedData.password);
       navigate('/admin');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
+      setError(sanitizeErrorMessage(err));
     }
   };
 

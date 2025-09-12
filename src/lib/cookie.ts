@@ -5,7 +5,8 @@ export const AUTH_TOKEN_KEY = 'auth_token'
 export const setAuthToken = (token: string) => {
   Cookies.set(AUTH_TOKEN_KEY, token, {
     expires: 1, // 1 day
-    secure: true,
+    httpOnly: false, // Cannot use httpOnly in client-side cookies, but this adds awareness
+    secure: window.location.protocol === 'https:', // Only secure in HTTPS
     sameSite: 'strict'
   })
 }

@@ -1,4 +1,6 @@
 import axiosInstance from "../axios";
+import { validateAndSanitizeInput, applicationSearchSchema, paginationSchema, applicationActionSchema } from "../validation/schemas";
+import { sanitizeErrorMessage } from "../errors";
 
 export interface ApplicationCriteria {
   fullName?: string;
@@ -54,21 +56,24 @@ export const searchApplications = async (
     size: number = 20
 ): Promise<ApplicationSearchResponse> => {
   try {
-    // Filter only non-empty fields
-    const params: any = { page, size };
+    // Validate input
+    const validatedCriteria = validateAndSanitizeInput(applicationSearchSchema, criteria);
+    const validatedPagination = validateAndSanitizeInput(paginationSchema, { page, size });
+    
+    const params: any = { 
+      page: validatedPagination.page, 
+      size: validatedPagination.size 
+    };
 
-    if (criteria.fullName?.trim()) params.fullName = criteria.fullName.trim();
-    if (criteria.email?.trim()) params.email = criteria.email.trim();
-    if (criteria.teachingField?.trim()) params.teachingField = criteria.teachingField.trim();
-    if (criteria.phone?.trim()) params.phone = criteria.phone.trim();
-    if (criteria.status?.trim()) params.status = criteria.status.trim();
-    if (criteria.createdAtFrom?.trim()) params.createdAtFrom = criteria.createdAtFrom.trim();
-    if (criteria.createdAtTo?.trim()) params.createdAtTo = criteria.createdAtTo.trim();
+    if ((validatedCriteria as any).fullName?.trim()) params.fullName = (validatedCriteria as any).fullName.trim();
+    if ((validatedCriteria as any).email?.trim()) params.email = (validatedCriteria as any).email.trim();
+    if ((validatedCriteria as any).teachingField?.trim()) params.teachingField = (validatedCriteria as any).teachingField.trim();
+    if ((validatedCriteria as any).status?.trim()) params.status = (validatedCriteria as any).status.trim();
 
     const response = await axiosInstance.get("/applications/search", { params });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to fetch applications");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };
 
@@ -77,38 +82,46 @@ export const getApplicationDetails = async (id: string): Promise<DetailedApplica
     const response = await axiosInstance.get(`/applications/${id}`);
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to fetch application details");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };
 
 export const deleteApplication = async (id: string): Promise<void> => {
   try {
-    await axiosInstance.delete(`/applications/${id}`);
+    const validatedData = validateAndSanitizeInput(applicationActionSchema, { id });
+    await axiosInstance.delete(`/applications/${(validatedData as any).id}`);
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to delete application");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };
 
 export const markAsRead = async (id: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/applications/${id}/read`);
+    const validatedData = validateAndSanitizeInput(applicationActionSchema, { id });
+    await axiosInstance.put(`/applications/${(validatedData as any).id}/read`);
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to mark as read");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };
 
 export const rejectApplication = async (id: string, message: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/applications/${id}/reject`, { message });
+    const validatedData = validateAndSanitizeInput(applicationActionSchema, { id, message });
+    await axiosInstance.put(`/applications/${(validatedData as any).id}/reject`, { 
+      message: (validatedData as any).message 
+    });
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to reject application");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };
 
 export const approveApplication = async (id: string, message: string): Promise<void> => {
   try {
-    await axiosInstance.put(`/applications/${id}/success`, { message });
+    const validatedData = validateAndSanitizeInput(applicationActionSchema, { id, message });
+    await axiosInstance.put(`/applications/${(validatedData as any).id}/success`, { 
+      message: (validatedData as any).message 
+    });
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Failed to approve application");
+    throw new Error(sanitizeErrorMessage(error));
   }
 };

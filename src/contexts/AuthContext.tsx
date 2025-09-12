@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { login as apiLogin } from '@/lib/api/users';
+import { login as apiLogin, getUserProfile } from '@/lib/api/users';
 import { getAuthToken, removeAuthToken } from '@/lib/cookie';
+import { useNavigate } from 'react-router-dom';
 
 interface User {
   firstName: string;
   lastName: string;
   role: string[];
+  id?: number;
+  email?: string;
 }
 
 interface AuthContextType {
@@ -15,6 +18,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  hasRole: (role: string) => boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,13 +42,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing token on mount
-    const token = getAuthToken();
-    if (token) {
-      setAccessToken(token);
-      // You could fetch user details here if needed
-    }
-    setIsLoading(false);
+    const initializeAuth = async () => {
+      const token = getAuthToken();
+      if (token) {
+        setAccessToken(token);
+        try {
+          // Fetch user profile to sync authentication state
+          const userData = await getUserProfile();
+          setUser({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            role: userData.role || [],
+            id: userData.id,
+            email: userData.email
+          });
+        } catch (error) {
+          // Token is invalid, remove it
+          removeAuthToken();
+          setAccessToken(null);
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -70,8 +93,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
     setAccessToken(null);
     removeAuthToken();
-    window.location.href = '/';
+    // Use React Router navigation instead of direct location change
+    window.location.href = '/signin';
   };
+
+  const hasRole = (role: string): boolean => {
+    return user?.role?.includes(role) || false;
+  };
+
+  const isAdmin = hasRole('ADMIN');
 
   const isAuthenticated = !!accessToken && !!user;
 
@@ -84,6 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         logout,
         isAuthenticated,
+        hasRole,
+        isAdmin,
       }}
     >
       {children}

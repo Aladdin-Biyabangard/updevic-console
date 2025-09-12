@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { PrivateRoute } from "@/components/auth/PrivateRoute";
+import { AdminRoute } from "@/components/auth/AdminRoute";
 import { SignIn } from "@/components/auth/SignIn";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import Index from "./pages/Index";
@@ -29,9 +29,9 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/admin" element={
-                <PrivateRoute>
+                <AdminRoute>
                   <AdminLayout />
-                </PrivateRoute>
+                </AdminRoute>
               }>
                 <Route index element={<Dashboard />} />
                 <Route path="applications" element={<Applications />} />
