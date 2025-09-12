@@ -496,7 +496,7 @@ export default function Applications() {
                           {application.isRead ? "Read" : "Mark as Read"}
                         </Button>
 
-                        {application.status === "PENDING" && (
+                        {!["APPROVED", "REJECTED"].includes(application.status) && (
                           <>
                             <Button
                               size="sm"
