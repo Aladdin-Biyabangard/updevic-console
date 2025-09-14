@@ -1,59 +1,108 @@
 import { Users, UserCheck, Clock, FileText, BookOpen, Award, TrendingUp, Activity } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { getDashboardStats } from "@/lib/api/dashboard";
 import { dashboardStats } from "@/lib/mockData";
 
-const stats = [
-  {
-    title: "Total Users",
-    value: dashboardStats.totalUsers,
-    change: "+12%",
-    changeType: "positive" as const,
-    icon: Users,
-    description: "All registered users",
-  },
-  {
-    title: "Active Users", 
-    value: dashboardStats.activeUsers,
-    change: "+8%",
-    changeType: "positive" as const,
-    icon: UserCheck,
-    description: "Currently active users",
-  },
-  {
-    title: "Pending Applications",
-    value: dashboardStats.pendingApplications,
-    change: "-5%", 
-    changeType: "negative" as const,
-    icon: Clock,
-    description: "Awaiting review",
-  },
-  {
-    title: "Active Courses",
-    value: dashboardStats.activeCourses,
-    change: "+15%",
-    changeType: "positive" as const, 
-    icon: BookOpen,
-    description: "Currently running",
-  },
-  {
-    title: "Certificates Issued",
-    value: dashboardStats.activeCertificates,
-    change: "+23%",
-    changeType: "positive" as const,
-    icon: Award,
-    description: "Valid certificates",
-  },
-  {
-    title: "Monthly Activity",
-    value: "94%",
-    change: "+2%",
-    changeType: "positive" as const,
-    icon: Activity,
-    description: "User engagement",
-  },
-];
-
 export function DashboardStats() {
+  const { data: apiStats, isLoading, error } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: getDashboardStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+  });
+
+  // Merge API data with mock data, using API data for the 4 specified fields
+  const combinedStats = {
+    ...dashboardStats,
+    totalUsers: apiStats?.totalUsers ?? 0,
+    activeUsers: apiStats?.activeUsers ?? 0,
+    pendingUsers: apiStats?.pendingUsers ?? 0,
+    pendingApplications: apiStats?.pendingApplicationsForTeaching ?? 0,
+  };
+
+  const stats = [
+    {
+      title: "Total Users",
+      value: combinedStats.totalUsers,
+      change: "+12%",
+      changeType: "positive" as const,
+      icon: Users,
+      description: "All registered users",
+      isFromApi: true,
+    },
+    {
+      title: "Active Users", 
+      value: combinedStats.activeUsers,
+      change: "+8%",
+      changeType: "positive" as const,
+      icon: UserCheck,
+      description: "Currently active users",
+      isFromApi: true,
+    },
+    {
+      title: "Pending Users",
+      value: combinedStats.pendingUsers,
+      change: "-5%", 
+      changeType: "negative" as const,
+      icon: Clock,
+      description: "Awaiting activation",
+      isFromApi: true,
+    },
+    {
+      title: "Pending Applications",
+      value: combinedStats.pendingApplications,
+      change: "-3%",
+      changeType: "negative" as const,
+      icon: FileText,
+      description: "Teacher applications awaiting review",
+      isFromApi: true,
+    },
+    {
+      title: "Active Courses",
+      value: combinedStats.activeCourses,
+      change: "+15%",
+      changeType: "positive" as const, 
+      icon: BookOpen,
+      description: "Currently running",
+      isFromApi: false,
+    },
+    {
+      title: "Certificates Issued",
+      value: combinedStats.activeCertificates,
+      change: "+23%",
+      changeType: "positive" as const,
+      icon: Award,
+      description: "Valid certificates",
+      isFromApi: false,
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Card key={index} className="bg-gradient-card border-0 shadow-custom-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-8 w-8 rounded-lg" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <Skeleton className="h-4 w-12" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {stats.map((stat, index) => (
