@@ -1,5 +1,15 @@
 import axiosInstance from "../axios";
-import { ApiDashboardStats } from "../mockData";
+
+export interface ApiDashboardStats {
+  userStats: {
+    totalUsers: number;
+    activeUsers: number;
+    pendingUsers: number;
+  };
+  activeCourseCount: number;
+  activeCertificateCount: number;
+  pendingApplicationsForTeaching: number;
+}
 
 export const getDashboardStats = async (): Promise<ApiDashboardStats> => {
   try {
@@ -9,9 +19,13 @@ export const getDashboardStats = async (): Promise<ApiDashboardStats> => {
     // Fallback to zeros if API is unreachable
     console.warn("Dashboard API unavailable, using fallback data");
     return {
-      totalUsers: 0,
-      activeUsers: 0,
-      pendingUsers: 0,
+      userStats: {
+        totalUsers: 0,
+        activeUsers: 0,
+        pendingUsers: 0,
+      },
+      activeCourseCount: 0,
+      activeCertificateCount: 0,
       pendingApplicationsForTeaching: 0,
     };
   }

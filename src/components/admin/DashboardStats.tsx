@@ -1,4 +1,4 @@
-import { Users, UserCheck, Clock, FileText, BookOpen, Award, TrendingUp, Activity } from "lucide-react";
+import { Users, UserCheck, Clock, FileText, BookOpen, Award, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -6,20 +6,22 @@ import { getDashboardStats } from "@/lib/api/dashboard";
 import { dashboardStats } from "@/lib/mockData";
 
 export function DashboardStats() {
-  const { data: apiStats, isLoading, error } = useQuery({
-    queryKey: ['dashboard-stats'],
+  const { data: apiStats, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
     queryFn: getDashboardStats,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
   });
 
-  // Merge API data with mock data, using API data for the 4 specified fields
+  // Merge API data with mock data
   const combinedStats = {
     ...dashboardStats,
-    totalUsers: apiStats?.totalUsers ?? 0,
-    activeUsers: apiStats?.activeUsers ?? 0,
-    pendingUsers: apiStats?.pendingUsers ?? 0,
+    totalUsers: apiStats?.userStats?.totalUsers ?? 0,
+    activeUsers: apiStats?.userStats?.activeUsers ?? 0,
+    pendingUsers: apiStats?.userStats?.pendingUsers ?? 0,
     pendingApplications: apiStats?.pendingApplicationsForTeaching ?? 0,
+    activeCourses: apiStats?.activeCourseCount ?? dashboardStats.activeCourses,
+    activeCertificates: apiStats?.activeCertificateCount ?? dashboardStats.activeCertificates,
   };
 
   const stats = [
@@ -33,7 +35,7 @@ export function DashboardStats() {
       isFromApi: true,
     },
     {
-      title: "Active Users", 
+      title: "Active Users",
       value: combinedStats.activeUsers,
       change: "+8%",
       changeType: "positive" as const,
@@ -44,7 +46,7 @@ export function DashboardStats() {
     {
       title: "Pending Users",
       value: combinedStats.pendingUsers,
-      change: "-5%", 
+      change: "-5%",
       changeType: "negative" as const,
       icon: Clock,
       description: "Awaiting activation",
@@ -63,10 +65,10 @@ export function DashboardStats() {
       title: "Active Courses",
       value: combinedStats.activeCourses,
       change: "+15%",
-      changeType: "positive" as const, 
+      changeType: "positive" as const,
       icon: BookOpen,
       description: "Currently running",
-      isFromApi: false,
+      isFromApi: true,
     },
     {
       title: "Certificates Issued",
@@ -75,78 +77,81 @@ export function DashboardStats() {
       changeType: "positive" as const,
       icon: Award,
       description: "Valid certificates",
-      isFromApi: false,
+      isFromApi: true,
     },
   ];
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Card key={index} className="bg-gradient-card border-0 shadow-custom-md">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-8 w-8 rounded-lg" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-3 w-32" />
-                </div>
-                <Skeleton className="h-4 w-12" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="bg-gradient-card border-0 shadow-custom-md">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Skeleton className="h-8 w-16 mb-2" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                    <Skeleton className="h-4 w-12" />
+                  </div>
+                </CardContent>
+              </Card>
+          ))}
+        </div>
     );
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {stats.map((stat, index) => (
-        <Card key={stat.title} className="bg-gradient-card border-0 shadow-custom-md hover:shadow-custom-lg transition-all duration-300 ease-smooth">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              {stat.title}
-            </CardTitle>
-            <div className="rounded-lg bg-gradient-primary/10 p-2">
-              <stat.icon className="h-4 w-4 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-foreground">
-                  {stat.value}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {stats.map((stat) => (
+            <Card
+                key={stat.title}
+                className="bg-gradient-card border-0 shadow-custom-md hover:shadow-custom-lg transition-all duration-300 ease-smooth"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <div className="rounded-lg bg-gradient-primary/10 p-2">
+                  <stat.icon className="h-4 w-4 text-primary" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stat.description}
-                </p>
-              </div>
-              <div className="flex items-center text-xs">
-                <TrendingUp
-                  className={`mr-1 h-3 w-3 ${
-                    stat.changeType === "positive"
-                      ? "text-success"
-                      : "text-destructive"
-                  }`}
-                />
-                <span
-                  className={`font-medium ${
-                    stat.changeType === "positive"
-                      ? "text-success"
-                      : "text-destructive"
-                  }`}
-                >
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold text-foreground">
+                      {stat.value}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stat.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center text-xs">
+                    <TrendingUp
+                        className={`mr-1 h-3 w-3 ${
+                            stat.changeType === "positive"
+                                ? "text-success"
+                                : "text-destructive"
+                        }`}
+                    />
+                    <span
+                        className={`font-medium ${
+                            stat.changeType === "positive"
+                                ? "text-success"
+                                : "text-destructive"
+                        }`}
+                    >
                   {stat.change}
                 </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+        ))}
+      </div>
   );
 }
