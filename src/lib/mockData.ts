@@ -334,6 +334,222 @@ export const chartData = {
   ],
 };
 
+// Teacher Payment Interfaces
+export interface TeacherPayment {
+  id: string;
+  teacherName: string;
+  teacherId: string;
+  email: string;
+  amount: number;
+  status: 'paid' | 'pending';
+  paymentDate: string;
+  description?: string;
+  paymentHistory: PaymentHistoryEntry[];
+}
+
+export interface PaymentHistoryEntry {
+  amount: number;
+  status: 'paid' | 'pending';
+  date: string;
+  description: string;
+}
+
+// Mock Teacher Payments Data
+export const mockTeacherPayments: TeacherPayment[] = [
+  {
+    id: '1',
+    teacherName: 'Sarah Johnson',
+    teacherId: 'T001',
+    email: 'sarah.johnson@school.edu',
+    amount: 3500.00,
+    status: 'paid',
+    paymentDate: '2024-01-15T00:00:00Z',
+    description: 'Monthly salary - January 2024',
+    paymentHistory: [
+      {
+        amount: 3500.00,
+        status: 'paid',
+        date: '2024-01-15T00:00:00Z',
+        description: 'Monthly salary - January 2024'
+      },
+      {
+        amount: 3500.00,
+        status: 'paid',
+        date: '2023-12-15T00:00:00Z',
+        description: 'Monthly salary - December 2023'
+      }
+    ]
+  },
+  {
+    id: '2',
+    teacherName: 'Dr. Michael Chen',
+    teacherId: 'T002',
+    email: 'm.chen@school.edu',
+    amount: 4200.00,
+    status: 'pending',
+    paymentDate: '2024-01-20T00:00:00Z',
+    description: 'Monthly salary + research bonus - January 2024',
+    paymentHistory: [
+      {
+        amount: 4200.00,
+        status: 'pending',
+        date: '2024-01-20T00:00:00Z',
+        description: 'Monthly salary + research bonus - January 2024'
+      },
+      {
+        amount: 3800.00,
+        status: 'paid',
+        date: '2023-12-20T00:00:00Z',
+        description: 'Monthly salary - December 2023'
+      },
+      {
+        amount: 3800.00,
+        status: 'paid',
+        date: '2023-11-20T00:00:00Z',
+        description: 'Monthly salary - November 2023'
+      }
+    ]
+  },
+  {
+    id: '3',
+    teacherName: 'Emily Davis',
+    teacherId: 'T003',
+    email: 'emily.davis@school.edu',
+    amount: 3200.00,
+    status: 'paid',
+    paymentDate: '2024-01-12T00:00:00Z',
+    description: 'Monthly salary - January 2024',
+    paymentHistory: [
+      {
+        amount: 3200.00,
+        status: 'paid',
+        date: '2024-01-12T00:00:00Z',
+        description: 'Monthly salary - January 2024'
+      },
+      {
+        amount: 3200.00,
+        status: 'paid',
+        date: '2023-12-12T00:00:00Z',
+        description: 'Monthly salary - December 2023'
+      }
+    ]
+  },
+  {
+    id: '4',
+    teacherName: 'Robert Brown',
+    teacherId: 'T004',
+    email: 'robert.brown@school.edu',
+    amount: 2800.00,
+    status: 'pending',
+    paymentDate: '2024-01-18T00:00:00Z',
+    description: 'Part-time teaching - January 2024',
+    paymentHistory: [
+      {
+        amount: 2800.00,
+        status: 'pending',
+        date: '2024-01-18T00:00:00Z',
+        description: 'Part-time teaching - January 2024'
+      },
+      {
+        amount: 2800.00,
+        status: 'paid',
+        date: '2023-12-18T00:00:00Z',
+        description: 'Part-time teaching - December 2023'
+      }
+    ]
+  },
+  {
+    id: '5',
+    teacherName: 'Amanda Lee',
+    teacherId: 'T005',
+    email: 'amanda.lee@school.edu',
+    amount: 3750.00,
+    status: 'paid',
+    paymentDate: '2024-01-10T00:00:00Z',
+    description: 'Monthly salary + extra classes - January 2024',
+    paymentHistory: [
+      {
+        amount: 3750.00,
+        status: 'paid',
+        date: '2024-01-10T00:00:00Z',
+        description: 'Monthly salary + extra classes - January 2024'
+      },
+      {
+        amount: 3500.00,
+        status: 'paid',
+        date: '2023-12-10T00:00:00Z',
+        description: 'Monthly salary - December 2023'
+      }
+    ]
+  },
+  {
+    id: '6',
+    teacherName: 'Dr. James Wilson',
+    teacherId: 'T006',
+    email: 'james.wilson@school.edu',
+    amount: 4500.00,
+    status: 'pending',
+    paymentDate: '2024-01-25T00:00:00Z',
+    description: 'Department head salary - January 2024',
+    paymentHistory: [
+      {
+        amount: 4500.00,
+        status: 'pending',
+        date: '2024-01-25T00:00:00Z',
+        description: 'Department head salary - January 2024'
+      },
+      {
+        amount: 4500.00,
+        status: 'paid',
+        date: '2023-12-25T00:00:00Z',
+        description: 'Department head salary - December 2023'
+      }
+    ]
+  },
+  {
+    id: '7',
+    teacherName: 'Lisa Rodriguez',
+    teacherId: 'T007',
+    email: 'lisa.rodriguez@school.edu',
+    amount: 3300.00,
+    status: 'paid',
+    paymentDate: '2024-01-08T00:00:00Z',
+    description: 'Monthly salary - January 2024',
+    paymentHistory: [
+      {
+        amount: 3300.00,
+        status: 'paid',
+        date: '2024-01-08T00:00:00Z',
+        description: 'Monthly salary - January 2024'
+      },
+      {
+        amount: 3300.00,
+        status: 'paid',
+        date: '2023-12-08T00:00:00Z',
+        description: 'Monthly salary - December 2023'
+      }
+    ]
+  },
+  {
+    id: '8',
+    teacherName: 'Carlos Martinez',
+    teacherId: 'T008',
+    email: 'carlos.martinez@school.edu',
+    amount: 2950.00,
+    status: 'pending',
+    paymentDate: '2024-01-22T00:00:00Z',
+    description: 'Substitute teaching - January 2024',
+    paymentHistory: [
+      {
+        amount: 2950.00,
+        status: 'pending',
+        date: '2024-01-22T00:00:00Z',
+        description: 'Substitute teaching - January 2024'
+      }
+    ]
+  }
+];
+
 // ============================================
 // NEW API-COMPATIBLE MOCK DATA
 // ============================================

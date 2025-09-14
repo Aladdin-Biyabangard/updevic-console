@@ -13,6 +13,7 @@ import {
   ChevronRight,
   LogOut,
   Shield,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,11 @@ const navigation = [
     name: "Certificates",
     href: "/admin/certificates",
     icon: Award,
+  },
+  {
+    name: "Teacher Payments",
+    href: "/admin/payments",
+    icon: DollarSign,
   },
   {
     name: "Courses",
