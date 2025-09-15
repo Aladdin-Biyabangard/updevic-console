@@ -60,10 +60,14 @@ export default function TeacherPayments() {
 
     useEffect(() => {
         fetchPayments();
-    }, [filters]);
+    }, []);
 
     const handleClear = () => {
         setFilters({search: "", status: "", dateFrom: "", dateTo: ""});
+    };
+
+    const handleSearch = () => {
+        fetchPayments();
     };
 
     const getStatusBadge = (status: TeacherPaymentStatus) => {
@@ -97,16 +101,16 @@ export default function TeacherPayments() {
         }
     };
 
-    const filteredPayments = payments.filter(payment => {
-        const matchesSearch =
-            payment.teacherName.toLowerCase().includes(filters.search.toLowerCase()) ||
-            payment.teacherId.toString().toLowerCase().includes(filters.search.toLowerCase()) ||
-            payment.teacherEmail.toLowerCase().includes(filters.search.toLowerCase());
-        const matchesStatus = !filters.status || payment.status === filters.status;
-        const matchesDateFrom = !filters.dateFrom || new Date(payment.paymentDateAndTime) >= new Date(filters.dateFrom);
-        const matchesDateTo = !filters.dateTo || new Date(payment.paymentDateAndTime) <= new Date(filters.dateTo);
-        return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
-    });
+    const handleProcessAllPending = async () => {
+        const pendingPayments = payments.filter(p => p.status === "PENDING");
+        for (const payment of pendingPayments) {
+            try {
+                await handlePay(payment.id);
+            } catch (err) {
+                console.error(`Failed to process payment ${payment.id}`, err);
+            }
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -116,8 +120,8 @@ export default function TeacherPayments() {
                     <h1 className="text-3xl font-bold text-foreground">Teacher Payments</h1>
                     <p className="text-muted-foreground mt-2">Manage and track teacher payment records</p>
                 </div>
-                <Button onClick={() => filteredPayments.forEach(p => p.status === "PENDING" && handlePay(p.id))}>
-                    <DollarSign className="h-4 w-4 mr-2"/> Process Payment
+                <Button onClick={handleProcessAllPending}>
+                    <DollarSign className="h-4 w-4 mr-2"/> Process All Pending
                 </Button>
             </div>
 
@@ -196,15 +200,19 @@ export default function TeacherPayments() {
                     )}
 
                     <div className="flex gap-2 pt-4">
-                        <Button variant="outline" onClick={handleClear}><X className="h-4 w-4 mr-2"/> Clear
-                            Filters</Button>
+                        <Button onClick={handleSearch}>
+                            <Search className="h-4 w-4 mr-2"/> Search
+                        </Button>
+                        <Button variant="outline" onClick={handleClear}>
+                            <X className="h-4 w-4 mr-2"/> Clear Filters
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Payments Table */}
             <Card className="bg-gradient-card border-0 shadow-sm">
-                <CardHeader><CardTitle>Payment Records ({filteredPayments.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Payment Records ({payments.length})</CardTitle></CardHeader>
                 <CardContent>
                     {loading ? (
                         <div className="flex items-center justify-center py-8 text-muted-foreground">Loading
@@ -222,7 +230,7 @@ export default function TeacherPayments() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredPayments.map(payment => (
+                                {payments.map(payment => (
                                     <TableRow key={payment.id}>
                                         <TableCell>
                                             <div>
