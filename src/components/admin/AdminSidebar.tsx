@@ -14,6 +14,7 @@ import {
   LogOut,
   Shield,
   DollarSign,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,13 +33,13 @@ const navigation = [
     exact: true,
   },
   {
-    name: "Teacher Applications", 
+    name: "Teacher Applications",
     href: "/admin/applications",
     icon: FileText,
   },
   {
     name: "Users Management",
-    href: "/admin/users", 
+    href: "/admin/users",
     icon: Users,
   },
   {
@@ -50,6 +51,11 @@ const navigation = [
     name: "Teacher Payments",
     href: "/admin/payments",
     icon: DollarSign,
+  },
+  {
+    name: "Admin Payments",
+    href: "/admin/admin-payments",
+    icon: CreditCard,
   },
   {
     name: "Courses",
@@ -75,7 +81,7 @@ const navigation = [
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const location = useLocation();
-  
+
   const isActive = (href: string, exact?: boolean) => {
     if (exact) {
       return location.pathname === href;
@@ -84,96 +90,96 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   };
 
   return (
-    <div
-      className={cn(
-        "relative flex h-screen flex-col bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border transition-all duration-300 ease-smooth",
-        collapsed ? "w-16" : "w-72"
-      )}
-    >
-      {/* Header */}
-      <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
-        {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-              <Shield className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-lg font-semibold text-sidebar-foreground">
+      <div
+          className={cn(
+              "relative flex h-screen flex-col bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border transition-all duration-300 ease-smooth",
+              collapsed ? "w-16" : "w-72"
+          )}
+      >
+        {/* Header */}
+        <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+          {!collapsed && (
+              <div className="flex items-center space-x-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
+                  <Shield className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-semibold text-sidebar-foreground">
               Admin Panel
             </span>
-          </div>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onToggle}
-          className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
+              </div>
           )}
-        </Button>
-      </div>
+          <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggle}
+              className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            {collapsed ? (
+                <ChevronRight className="h-4 w-4" />
+            ) : (
+                <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
-        {navigation.map((item) => {
-          const active = isActive(item.href, item.exact);
-          return (
-            <NavLink
-              key={item.name}
-              to={item.href}
+        {/* Navigation */}
+        <nav className="flex-1 space-y-1 p-4">
+          {navigation.map((item) => {
+            const active = isActive(item.href, item.exact);
+            return (
+                <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                        "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-smooth",
+                        active
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-custom-md"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        collapsed ? "justify-center" : "justify-start"
+                    )}
+                >
+                  <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
+                  {!collapsed && (
+                      <span className="truncate">{item.name}</span>
+                  )}
+                </NavLink>
+            );
+          })}
+        </nav>
+
+        <Separator className="bg-sidebar-border" />
+
+        {/* Footer */}
+        <div className="p-4">
+          {!collapsed && (
+              <div className="mb-3 rounded-lg bg-sidebar-accent/50 p-3">
+                <div className="flex items-center space-x-2">
+                  <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
+                    <span className="text-xs font-medium text-white">AD</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-sidebar-foreground truncate">
+                      Admin User
+                    </p>
+                    <p className="text-xs text-sidebar-foreground/70 truncate">
+                      admin@panel.com
+                    </p>
+                  </div>
+                </div>
+              </div>
+          )}
+          <Button
+              variant="ghost"
+              size="sm"
               className={cn(
-                "flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-smooth",
-                active
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-custom-md"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                collapsed ? "justify-center" : "justify-start"
+                  "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
+                  collapsed ? "w-8 h-8 p-0" : "w-full justify-start"
               )}
-            >
-              <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
-              {!collapsed && (
-                <span className="truncate">{item.name}</span>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      <Separator className="bg-sidebar-border" />
-
-      {/* Footer */}
-      <div className="p-4">
-        {!collapsed && (
-          <div className="mb-3 rounded-lg bg-sidebar-accent/50 p-3">
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-gradient-primary flex items-center justify-center">
-                <span className="text-xs font-medium text-white">AD</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  Admin User
-                </p>
-                <p className="text-xs text-sidebar-foreground/70 truncate">
-                  admin@panel.com
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-            collapsed ? "w-8 h-8 p-0" : "w-full justify-start"
-          )}
-        >
-          <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
-          {!collapsed && "Logout"}
-        </Button>
+          >
+            <LogOut className={cn("h-4 w-4", !collapsed && "mr-2")} />
+            {!collapsed && "Logout"}
+          </Button>
+        </div>
       </div>
-    </div>
   );
 }
