@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import {Search, Filter, Calendar, Eye, DollarSign, X} from "lucide-react";
+import {Search, Filter, Calendar, Eye, DollarSign, X, CheckCircle, Edit} from "lucide-react";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -7,7 +7,9 @@ import {Badge} from "@/components/ui/badge";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {Label} from "@/components/ui/label";
-import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter} from "@/components/ui/dialog";
+import {Textarea} from "@/components/ui/textarea";
+import {useToast} from "@/hooks/use-toast";
 
 import {
     TeacherPayment,
@@ -34,6 +36,10 @@ export default function TeacherPayments() {
         dateFrom: "",
         dateTo: ""
     });
+    const [updateModalOpen, setUpdateModalOpen] = useState(false);
+    const [selectedPayment, setSelectedPayment] = useState<TeacherPayment | null>(null);
+    const [newDescription, setNewDescription] = useState("");
+    const { toast } = useToast();
 
     // Fetch teacher payments from backend
     const fetchPayments = async () => {
@@ -86,18 +92,47 @@ export default function TeacherPayments() {
     const handlePay = async (id: number) => {
         try {
             await payTeacherPayment(id);
-            fetchPayments();
+            await fetchPayments();
+            toast({
+                title: "Success",
+                description: "Payment has been marked as paid.",
+            });
         } catch (err) {
             console.error("Payment failed", err);
+            toast({
+                title: "Error",
+                description: "Failed to mark payment as paid.",
+                variant: "destructive",
+            });
         }
     };
 
-    const handleUpdate = async (id: number, description: string) => {
+    const handleOpenUpdateModal = (payment: TeacherPayment) => {
+        setSelectedPayment(payment);
+        setNewDescription(payment.description);
+        setUpdateModalOpen(true);
+    };
+
+    const handleUpdateDescription = async () => {
+        if (!selectedPayment) return;
+
         try {
-            await updateTeacherPaymentDescription(id, description);
-            fetchPayments();
+            await updateTeacherPaymentDescription(selectedPayment.id, newDescription);
+            await fetchPayments();
+            setUpdateModalOpen(false);
+            setSelectedPayment(null);
+            setNewDescription("");
+            toast({
+                title: "Success",
+                description: "Payment description has been updated.",
+            });
         } catch (err) {
             console.error("Update failed", err);
+            toast({
+                title: "Error",
+                description: "Failed to update payment description.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -245,25 +280,76 @@ export default function TeacherPayments() {
                                             className="font-semibold">{formatCurrency(payment.amount)}</TableCell>
                                         <TableCell>{formatDate(payment.paymentDateAndTime)}</TableCell>
                                         <TableCell>
-                                            <Dialog>
-                                                <DialogTrigger asChild>
-                                                    <Button variant="outline" size="sm"><Eye className="h-4 w-4 mr-2"/>View
-                                                        Details</Button>
-                                                </DialogTrigger>
-                                                <DialogContent className="max-w-2xl">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Payment Details
-                                                            - {payment.teacherName}</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="flex gap-2 pt-4">
-                                                        {payment.status === "PENDING" &&
-                                                            <Button onClick={() => handlePay(payment.id)}>Mark as
-                                                                Paid</Button>}
-                                                        <Button
-                                                            onClick={() => handleUpdate(payment.id, "Updated description")}>Update</Button>
-                                                    </div>
-                                                </DialogContent>
-                                            </Dialog>
+                                            <div className="flex gap-2">
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button variant="outline" size="sm">
+                                                            <Eye className="h-4 w-4 mr-2"/>View Details
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="max-w-2xl">
+                                                        <DialogHeader>
+                                                            <DialogTitle>Payment Details - {payment.teacherName}</DialogTitle>
+                                                        </DialogHeader>
+                                                        <div className="grid grid-cols-2 gap-4 py-4">
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Payment ID</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.id}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Teacher ID</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.teacherId}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Teacher Name</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.teacherName}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Teacher Email</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.teacherEmail}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Course ID</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.courseId}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Amount</Label>
+                                                                <p className="text-sm text-muted-foreground">{formatCurrency(payment.amount)}</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Status</Label>
+                                                                <div>{getStatusBadge(payment.status)}</div>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-sm font-medium">Payment Date & Time</Label>
+                                                                <p className="text-sm text-muted-foreground">{new Date(payment.paymentDateAndTime).toLocaleString()}</p>
+                                                            </div>
+                                                            <div className="space-y-2 col-span-2">
+                                                                <Label className="text-sm font-medium">Description</Label>
+                                                                <p className="text-sm text-muted-foreground">{payment.description || "No description provided"}</p>
+                                                            </div>
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+
+                                                {payment.status === "PENDING" && (
+                                                    <Button
+                                                        variant="default"
+                                                        size="sm"
+                                                        onClick={() => handlePay(payment.id)}
+                                                    >
+                                                        <CheckCircle className="h-4 w-4 mr-2"/>Paid
+                                                    </Button>
+                                                )}
+
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleOpenUpdateModal(payment)}
+                                                >
+                                                    <Edit className="h-4 w-4 mr-2"/>Update
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -272,6 +358,35 @@ export default function TeacherPayments() {
                     )}
                 </CardContent>
             </Card>
+
+            {/* Update Description Modal */}
+            <Dialog open={updateModalOpen} onOpenChange={setUpdateModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Update Payment Description</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea
+                                id="description"
+                                placeholder="Enter payment description..."
+                                value={newDescription}
+                                onChange={(e) => setNewDescription(e.target.value)}
+                                rows={4}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setUpdateModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleUpdateDescription}>
+                            Update Description
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
