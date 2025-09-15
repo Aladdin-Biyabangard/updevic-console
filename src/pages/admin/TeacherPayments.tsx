@@ -145,15 +145,15 @@ export default function TeacherPayments() {
                         <div className="space-y-2">
                             <Label>Payment Status</Label>
                             <Select
-                                value={filters.status}
+                                value={filters.status || "all"}
                                 onValueChange={value => setFilters(prev => ({
                                     ...prev,
-                                    status: value as TeacherPaymentStatus || ""
+                                    status: value === "all" ? "" : value as TeacherPaymentStatus
                                 }))}
                             >
                                 <SelectTrigger><SelectValue placeholder="All statuses"/></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Statuses</SelectItem>
+                                    <SelectItem value="all">All Statuses</SelectItem>
                                     <SelectItem value="PAID">Paid</SelectItem>
                                     <SelectItem value="PENDING">Pending</SelectItem>
                                     <SelectItem value="CANCELED">Canceled</SelectItem>
