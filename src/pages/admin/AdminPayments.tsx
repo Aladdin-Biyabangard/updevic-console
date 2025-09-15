@@ -16,9 +16,11 @@ import {
     BalanceOverview,
     MonthlyBalanceData,
     TransactionFilters,
-    getBalanceOverview,
+    getPaymentStats,
     getTransactions,
-    getMonthlyBalanceReport,
+    updateTransactionDescription,
+    transformStatsToBalanceOverview,
+    transformMonthlyStats,
     getMockBalanceOverview,
     getMockTransactions,
     getMockMonthlyData
@@ -42,22 +44,27 @@ export default function AdminPayments() {
     });
     const { toast } = useToast();
 
-    // Fetch balance overview
+    // Fetch balance overview and monthly data from stats API
     const fetchBalanceOverview = async () => {
         try {
             // Try real API first, fallback to mock data
             try {
-                const data = await getBalanceOverview();
-                setBalanceOverview(data);
+                const statsData = await getPaymentStats();
+                const balanceData = transformStatsToBalanceOverview(statsData);
+                const monthlyChartData = transformMonthlyStats(statsData.monthlyStats);
+
+                setBalanceOverview(balanceData);
+                setMonthlyData(monthlyChartData);
             } catch (error) {
                 // Use mock data if API is not available
                 setBalanceOverview(getMockBalanceOverview());
+                setMonthlyData(getMockMonthlyData());
             }
         } catch (err) {
-            console.error("Failed to fetch balance overview", err);
+            console.error("Failed to fetch payment stats", err);
             toast({
                 title: "Error",
-                description: "Failed to fetch balance overview",
+                description: "Failed to fetch payment statistics",
                 variant: "destructive",
             });
         }
@@ -71,10 +78,10 @@ export default function AdminPayments() {
                 const response = await getTransactions({
                     page: 0,
                     size: 100,
-                    filters: {
-                        fromDate: filters.fromDate || undefined,
+                    criteria: {
+                        dateFrom: filters.fromDate || undefined,
                         toDate: filters.toDate || undefined,
-                        type: filters.type || undefined
+                        transactionType: filters.type || undefined
                     }
                 });
                 setTransactions(response.content);
@@ -111,30 +118,29 @@ export default function AdminPayments() {
         }
     };
 
-    // Fetch monthly report
-    const fetchMonthlyReport = async () => {
+    // Update transaction description
+    const updateDescription = async (transactionId: number, newDescription: string) => {
         try {
-            try {
-                const data = await getMonthlyBalanceReport();
-                setMonthlyData(data);
-            } catch (error) {
-                // Use mock data if API is not available
-                setMonthlyData(getMockMonthlyData());
-            }
+            await updateTransactionDescription(transactionId, newDescription);
+            // Refresh transactions to show updated description
+            fetchTransactions();
+            toast({
+                title: "Success",
+                description: "Transaction description updated successfully",
+            });
         } catch (err) {
-            console.error("Failed to fetch monthly report", err);
+            console.error("Failed to update transaction description", err);
             toast({
                 title: "Error",
-                description: "Failed to fetch monthly report",
+                description: "Failed to update transaction description",
                 variant: "destructive",
             });
         }
     };
 
     useEffect(() => {
-        fetchBalanceOverview();
+        fetchBalanceOverview(); // This now fetches both balance and monthly data
         fetchTransactions();
-        fetchMonthlyReport();
     }, []);
 
     const handleSearch = () => {
