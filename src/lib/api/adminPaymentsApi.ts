@@ -1,7 +1,7 @@
 import axiosInstance from "../axios";
 
 // ---- Types ----
-export type TransactionType = "IN" | "OUT";
+export type TransactionType = "INCOME" | "OUTCOME";
 
 export interface Transaction {
     id: number;
@@ -77,11 +77,11 @@ export const getMockBalanceOverview = (): BalanceOverview => ({
 });
 
 export const getMockTransactions = (): Transaction[] => [
-    { id: 1, amount: 2500.00, type: "IN", description: "Course enrollment fee", date: "2024-01-15T10:30:00Z" },
-    { id: 2, amount: 1200.00, type: "OUT", description: "Teacher payment - John Doe", date: "2024-01-14T14:20:00Z" },
-    { id: 3, amount: 3750.00, type: "IN", description: "Premium subscription", date: "2024-01-13T09:15:00Z" },
-    { id: 4, amount: 800.00, type: "OUT", description: "Platform maintenance", date: "2024-01-12T16:45:00Z" },
-    { id: 5, amount: 1500.00, type: "IN", description: "Corporate training package", date: "2024-01-11T11:30:00Z" },
+    { id: 1, amount: 2500.00, type: "INCOME", description: "Course enrollment fee", date: "2024-01-15T10:30:00Z" },
+    { id: 2, amount: 1200.00, type: "OUTCOME", description: "Teacher payment - John Doe", date: "2024-01-14T14:20:00Z" },
+    { id: 3, amount: 3750.00, type: "INCOME", description: "Premium subscription", date: "2024-01-13T09:15:00Z" },
+    { id: 4, amount: 800.00, type: "OUTCOME", description: "Platform maintenance", date: "2024-01-12T16:45:00Z" },
+    { id: 5, amount: 1500.00, type: "INCOME", description: "Corporate training package", date: "2024-01-11T11:30:00Z" },
 ];
 
 export const getMockMonthlyData = (): MonthlyBalanceData[] => [

@@ -158,7 +158,7 @@ export default function AdminPayments() {
         });
 
     const getTransactionBadge = (type: TransactionType, amount: number) => {
-        if (type === "IN") {
+        if (type === "INCOME") {
             return (
                 <Badge className="bg-success/10 text-success hover:bg-success/20">
                     <ArrowUpCircle className="h-3 w-3 mr-1"/>
@@ -363,8 +363,8 @@ export default function AdminPayments() {
                                             {getTransactionBadge(transaction.type, transaction.amount)}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={transaction.type === "IN" ? "default" : "secondary"}>
-                                                {transaction.type === "IN" ? "Income" : "Outcome"}
+                                            <Badge variant={transaction.type === "INCOME" ? "default" : "secondary"}>
+                                                {transaction.type === "INCOME" ? "Income" : "Outcome"}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
