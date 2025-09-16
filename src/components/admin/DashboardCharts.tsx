@@ -1,10 +1,75 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { chartData } from "@/lib/mockData";
+import { useQuery } from "@tanstack/react-query";
+import { getChartsData } from "@/lib/api/chartsApi";
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 export function DashboardCharts() {
+  const { data: chartsData, isLoading } = useQuery({
+    queryKey: ["charts-data"],
+    queryFn: getChartsData,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+  });
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* User Roles Distribution Skeleton */}
+        <Card className="bg-gradient-card border-0 shadow-custom-md">
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+            <div className="flex justify-center space-x-4 mt-4">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="flex items-center">
+                  <Skeleton className="w-3 h-3 rounded-full mr-2" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Application Status Skeleton */}
+        <Card className="bg-gradient-card border-0 shadow-custom-md">
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+
+        {/* Monthly Activity Skeleton */}
+        <Card className="md:col-span-2 bg-gradient-card border-0 shadow-custom-md">
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[350px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!chartsData) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="bg-gradient-card border-0 shadow-custom-md">
+          <CardContent className="flex items-center justify-center h-[300px]">
+            <p className="text-muted-foreground">No chart data available</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* User Roles Distribution */}
@@ -19,7 +84,7 @@ export function DashboardCharts() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={chartData.userRoles}
+                  data={chartsData.userRoles}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -27,8 +92,8 @@ export function DashboardCharts() {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {chartData.userRoles.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {chartsData.userRoles.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -42,11 +107,11 @@ export function DashboardCharts() {
             </ResponsiveContainer>
           </div>
           <div className="flex justify-center space-x-4 mt-4">
-            {chartData.userRoles.map((entry, index) => (
+            {chartsData.userRoles.map((entry, index) => (
               <div key={entry.name} className="flex items-center">
                 <div 
                   className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  style={{ backgroundColor: entry.color || COLORS[index % COLORS.length] }}
                 />
                 <span className="text-sm text-muted-foreground">{entry.name}</span>
               </div>
@@ -65,7 +130,7 @@ export function DashboardCharts() {
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData.applicationStatus}>
+              <BarChart data={chartsData.applicationStatus}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
                   dataKey="name" 
@@ -100,7 +165,7 @@ export function DashboardCharts() {
         <CardContent>
           <div className="h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData.monthlyActivity}>
+              <LineChart data={chartsData.monthlyActivity}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis 
                   dataKey="month" 

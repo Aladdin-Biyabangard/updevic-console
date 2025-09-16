@@ -81,7 +81,7 @@ export const getTransactions = async (
 
 // PUT /api/v1/admins/payments/{transactionId}
 export const updateTransactionDescription = async (
-    transactionId: number,
+    transactionId: string,
     description: string
 ): Promise<void> => {
     await axiosInstance.put(`/admins/payments/${transactionId}`, null, {
@@ -120,44 +120,44 @@ export const getMockBalanceOverview = (): BalanceOverview => ({
 
 export const getMockTransactions = (): Transaction[] => [
     {
-        id: 1,
+        transactionId: "TXN001",
         amount: 2500.00,
-        type: "INCOME",
+        transactionType: "INCOME",
         status: "COMPLETED",
         description: "Course enrollment fee",
-        date: "2024-01-15T10:30:00Z"
+        paymentDate: "2024-01-15T10:30:00Z"
     },
     {
-        id: 2,
+        transactionId: "TXN002",
         amount: 1200.00,
-        type: "OUTCOME",
+        transactionType: "OUTCOME",
         status: "COMPLETED",
         description: "Teacher payment - John Doe",
-        date: "2024-01-14T14:20:00Z"
+        paymentDate: "2024-01-14T14:20:00Z"
     },
     {
-        id: 3,
+        transactionId: "TXN003",
         amount: 3750.00,
-        type: "INCOME",
+        transactionType: "INCOME",
         status: "COMPLETED",
         description: "Premium subscription",
-        date: "2024-01-13T09:15:00Z"
+        paymentDate: "2024-01-13T09:15:00Z"
     },
     {
-        id: 4,
+        transactionId: "TXN004",
         amount: 800.00,
-        type: "OUTCOME",
+        transactionType: "OUTCOME",
         status: "PENDING",
         description: "Platform maintenance",
-        date: "2024-01-12T16:45:00Z"
+        paymentDate: "2024-01-12T16:45:00Z"
     },
     {
-        id: 5,
+        transactionId: "TXN005",
         amount: 1500.00,
-        type: "INCOME",
+        transactionType: "INCOME",
         status: "COMPLETED",
         description: "Corporate training package",
-        date: "2024-01-11T11:30:00Z"
+        paymentDate: "2024-01-11T11:30:00Z"
     },
 ];
 

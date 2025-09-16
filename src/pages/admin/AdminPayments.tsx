@@ -119,7 +119,7 @@ export default function AdminPayments() {
     };
 
     // Update transaction description
-    const updateDescription = async (transactionId: number, newDescription: string) => {
+    const updateDescription = async (transactionId: string, newDescription: string) => {
         try {
             await updateTransactionDescription(transactionId, newDescription);
             // Refresh transactions to show updated description
