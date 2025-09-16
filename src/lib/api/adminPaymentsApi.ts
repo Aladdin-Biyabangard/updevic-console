@@ -4,12 +4,12 @@ import axiosInstance from "../axios";
 export type TransactionType = "INCOME" | "OUTCOME";
 
 export interface Transaction {
-    id: number;
+    transactionId: string;
     amount: number;
-    type: TransactionType;
+    transactionType: TransactionType;
     status: string;
     description: string;
-    date: string; // ISO date
+    paymentDate: string;
 }
 
 export interface BalanceOverview {

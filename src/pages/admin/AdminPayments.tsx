@@ -91,16 +91,16 @@ export default function AdminPayments() {
 
                 // Apply client-side filters to mock data
                 if (filters.type) {
-                    mockTransactions = mockTransactions.filter(t => t.type === filters.type);
+                    mockTransactions = mockTransactions.filter(t => t.transactionType === filters.type);
                 }
                 if (filters.fromDate) {
                     mockTransactions = mockTransactions.filter(t =>
-                        new Date(t.date) >= new Date(filters.fromDate)
+                        new Date(t.paymentDate) >= new Date(filters.fromDate)
                     );
                 }
                 if (filters.toDate) {
                     mockTransactions = mockTransactions.filter(t =>
-                        new Date(t.date) <= new Date(filters.toDate)
+                        new Date(t.paymentDate) <= new Date(filters.toDate)
                     );
                 }
 
@@ -326,8 +326,8 @@ export default function AdminPayments() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All Types</SelectItem>
-                                    <SelectItem value="IN">Income</SelectItem>
-                                    <SelectItem value="OUT">Outcome</SelectItem>
+                                    <SelectItem value="INCOME">Income</SelectItem>
+                                    <SelectItem value="OUTCOME">Outcome</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -361,23 +361,23 @@ export default function AdminPayments() {
                             </TableHeader>
                             <TableBody>
                                 {transactions.map(transaction => (
-                                    <TableRow key={transaction.id}>
+                                    <TableRow key={transaction.transactionId}>
                                         <TableCell className="font-mono text-sm">
-                                            #{transaction.id}
+                                            #{transaction.transactionId}
                                         </TableCell>
                                         <TableCell>
-                                            {getTransactionBadge(transaction.type, transaction.amount)}
+                                            {getTransactionBadge(transaction.transactionType, transaction.amount)}
                                         </TableCell>
                                         <TableCell>
-                                            <Badge variant={transaction.type === "INCOME" ? "default" : "secondary"}>
-                                                {transaction.type === "INCOME" ? "Income" : "Outcome"}
+                                            <Badge variant={transaction.transactionType === "INCOME" ? "default" : "secondary"}>
+                                                {transaction.transactionType === "INCOME" ? "Income" : "Outcome"}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="max-w-xs truncate">
                                             {transaction.description}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">
-                                            {formatDate(transaction.date)}
+                                            {formatDate(transaction.paymentDate)}
                                         </TableCell>
                                     </TableRow>
                                 ))}
