@@ -13,13 +13,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
-import { 
+import {
   searchApplications,
   getApplicationDetails,
   deleteApplication,
   markAsRead,
   rejectApplication,
   approveApplication,
+  exportApplications,   // 🔹 əlavə et
   BasicApplication,
   DetailedApplication,
   ApplicationCriteria
@@ -205,7 +206,34 @@ export default function Applications() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  const blob = await exportApplications(filters);
+
+                  // Faylı yükləmək üçün link yarat
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = `applications_export_${new Date().toISOString().slice(0,10)}.xlsx`; // və ya .csv
+                  link.click();
+                  window.URL.revokeObjectURL(url);
+
+                  toast({
+                    title: "Success",
+                    description: "Export completed successfully",
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Error",
+                    description: error instanceof Error ? error.message : "Failed to export applications",
+                    variant: "destructive",
+                  });
+                }
+              }}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>

@@ -50,6 +50,36 @@ export interface ApplicationSearchResponse {
   number: number;
 }
 
+export const exportApplications = async (
+    criteria: ApplicationCriteria = {}
+): Promise<Blob> => {
+  try {
+    // validate input
+    const validatedCriteria = validateAndSanitizeInput(applicationSearchSchema, criteria);
+
+    const params: any = {};
+    if ((validatedCriteria as any).fullName?.trim()) params.fullName = (validatedCriteria as any).fullName.trim();
+    if ((validatedCriteria as any).email?.trim()) params.email = (validatedCriteria as any).email.trim();
+    if ((validatedCriteria as any).teachingField?.trim()) params.teachingField = (validatedCriteria as any).teachingField.trim();
+    if ((validatedCriteria as any).phone?.trim()) params.phone = (validatedCriteria as any).phone.trim();
+    if ((validatedCriteria as any).status?.trim()) params.status = (validatedCriteria as any).status.trim();
+    if ((validatedCriteria as any).createdAtFrom?.trim()) params.createdAtFrom = (validatedCriteria as any).createdAtFrom.trim();
+    if ((validatedCriteria as any).createdAtTo?.trim()) params.createdAtTo = (validatedCriteria as any).createdAtTo.trim();
+
+    // export file (backend çox güman CSV və ya Excel qaytaracaq)
+    const response = await axiosInstance.get("/applications/export", {
+      params,
+      responseType: "blob", // fayl yükləmək üçün
+      headers: { Accept: "*/*" }
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(sanitizeErrorMessage(error));
+  }
+};
+
+
 export const searchApplications = async (
     criteria: ApplicationCriteria = {},
     page: number = 0,
