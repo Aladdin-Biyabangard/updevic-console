@@ -4,7 +4,7 @@ import { Shield, ArrowRight, BarChart3, Users, Award, BookOpen } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import heroImage from "@/assets/admin-hero.jpg";
+// import heroImage from "@/assets/admin-hero.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -66,14 +66,14 @@ const Index = () => {
             Manage users, applications, certificates, and more with a beautiful, professional interface.
           </p>
           
-          {/* Hero Image */}
-          <div className="mb-8 max-w-4xl mx-auto">
-            <img 
-              src={heroImage} 
-              alt="Modern Admin Dashboard Preview"
-              className="w-full rounded-2xl shadow-custom-lg border border-border/50"
-            />
-          </div>
+          {/*/!* Hero Image *!/*/}
+          {/*<div className="mb-8 max-w-4xl mx-auto">*/}
+          {/*  <img */}
+          {/*    src={heroImage} */}
+          {/*    alt="Modern Admin Dashboard Preview"*/}
+          {/*    className="w-full rounded-2xl shadow-custom-lg border border-border/50"*/}
+          {/*  />*/}
+          {/*</div>*/}
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
