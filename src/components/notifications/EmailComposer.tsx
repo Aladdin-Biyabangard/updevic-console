@@ -36,7 +36,13 @@ export const EmailComposer: React.FC = () => {
     };
 
     const handleRecipientsChange = (recipients: EmailData['recipients']) => {
-        setEmailData(prev => ({ ...prev, recipients }));
+        setEmailData(prev => ({
+            ...prev,
+            recipients: {
+                ...prev.recipients,  // əvvəlkiləri saxla
+                ...recipients,       // yeni gələnləri üstündən yaz
+            },
+        }));
     };
 
     const handleSendEmail = async () => {
